@@ -1,3 +1,5 @@
+package com.askominas.carfilteringapp.models
+
 import com.google.gson.annotations.SerializedName
 
 /*

@@ -1,6 +1,6 @@
 package com.askominas.carfilteringapp.carlist.ui
 
-import SparkCar
+import com.askominas.carfilteringapp.models.SparkCar
 import android.Manifest
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -26,6 +26,7 @@ class CarListFragment : Fragment() {
     ): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_car_list, container, false)
         binding.lifecycleOwner = this
+
         val view = binding.root
         val rxPermissions = RxPermissions(this)
 

@@ -1,3 +1,5 @@
+package com.askominas.carfilteringapp.models
+
 import com.google.gson.annotations.SerializedName
 
 /*
@@ -14,9 +16,9 @@ For support, please feel free to contact me at https://www.linkedin.com/in/syeda
 
 data class Rate (
 
-	@SerializedName("isWeekend") val isWeekend : Boolean,
-	@SerializedName("currency") val currency : String,
-	@SerializedName("currencySymbol") val currencySymbol : String,
-	@SerializedName("lease") val lease : Lease,
-	@SerializedName("reservation") val reservation : Reservation
+    @SerializedName("isWeekend") val isWeekend : Boolean,
+    @SerializedName("currency") val currency : String,
+    @SerializedName("currencySymbol") val currencySymbol : String,
+    @SerializedName("lease") val lease : Lease,
+    @SerializedName("reservation") val reservation : Reservation
 )

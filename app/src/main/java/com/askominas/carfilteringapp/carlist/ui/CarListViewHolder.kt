@@ -1,6 +1,6 @@
 package com.askominas.carfilteringapp.carlist.ui
 
-import SparkCar
+import com.askominas.carfilteringapp.models.SparkCar
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView

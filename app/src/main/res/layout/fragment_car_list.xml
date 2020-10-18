@@ -4,7 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
+        <variable
+            name="viewModel"
+            type="com.askominas.carfilteringapp.carlist.viewmodels.CarListViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

@@ -1,3 +1,5 @@
+package com.askominas.carfilteringapp.models
+
 import com.google.gson.annotations.SerializedName
 
 /*
@@ -14,8 +16,8 @@ For support, please feel free to contact me at https://www.linkedin.com/in/syeda
 
 data class Lease (
 
-	@SerializedName("workdays") val workdays : Workdays,
-	@SerializedName("weekends") val weekends : Weekends,
-	@SerializedName("kilometerPrice") val kilometerPrice : Double,
-	@SerializedName("freeKilometersPerDay") val freeKilometersPerDay : Int
+    @SerializedName("workdays") val workdays : Workdays,
+    @SerializedName("weekends") val weekends : Weekends,
+    @SerializedName("kilometerPrice") val kilometerPrice : Double,
+    @SerializedName("freeKilometersPerDay") val freeKilometersPerDay : Int
 )
