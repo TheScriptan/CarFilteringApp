@@ -14,8 +14,6 @@ import com.askominas.carfilteringapp.BR
 import com.askominas.carfilteringapp.R
 import com.askominas.carfilteringapp.carlist.viewmodels.CarListViewModel
 import com.askominas.carfilteringapp.databinding.FragmentCarListBinding
-import com.askominas.carfilteringapp.models.SparkCar
-import com.google.gson.Gson
 import com.tbruyelle.rxpermissions3.RxPermissions
 import dagger.android.support.DaggerFragment
 import javax.inject.Inject
@@ -48,8 +46,23 @@ class CarListFragment : DaggerFragment() {
         binding.recyclerCarList.adapter = carListAdapter
         binding.recyclerCarList.layoutManager = carListLayoutManager
 
-        viewModel.updateCarList.observe(viewLifecycleOwner, Observer {
-            carListAdapter.initializeCarList(viewModel.carList)
+        viewModel.updateCarList.observe(viewLifecycleOwner, {
+            carListAdapter.updateCarList(viewModel.carList)
+        })
+
+        viewModel.sortByDistanceEvent.observe(viewLifecycleOwner, {
+            val sortedList = viewModel.sortByDistance()
+            carListAdapter.updateCarList(sortedList)
+        })
+
+        viewModel.sortByPlateEvent.observe(viewLifecycleOwner, {
+            val sortedList = viewModel.sortByPlate()
+            carListAdapter.updateCarList(sortedList)
+        })
+
+        viewModel.sortByBatteryEvent.observe(viewLifecycleOwner, {
+            val sortedList = viewModel.sortByBattery()
+            carListAdapter.updateCarList(sortedList)
         })
 
         rxPermissions

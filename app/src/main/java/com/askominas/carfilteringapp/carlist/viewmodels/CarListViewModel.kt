@@ -18,7 +18,7 @@ class CarListViewModel @Inject constructor(val retrofit: Retrofit) : ViewModel()
     val sortByBatteryEvent = SingleLiveEvent<Boolean>()
     val updateCarList = SingleLiveEvent<Boolean>()
 
-    var carList: List<SparkCar> = listOf()
+    var carList: List<SparkCar> = arrayListOf()
 
     fun loadCarList() {
         val api = retrofit.create(SparkCarApi::class.java)
@@ -28,7 +28,7 @@ class CarListViewModel @Inject constructor(val retrofit: Retrofit) : ViewModel()
                 response: Response<List<SparkCar>>
             ) {
                 if (response.body() != null) {
-                    carList = response.body()!!
+                    carList = ArrayList(response.body()!!)
                     updateCarList.call()
                 }
             }
@@ -49,5 +49,20 @@ class CarListViewModel @Inject constructor(val retrofit: Retrofit) : ViewModel()
 
     fun onSortByBatteryClick() {
         sortByBatteryEvent.call()
+    }
+
+    fun sortByDistance(): List<SparkCar> {
+        carList = carList.reversed()
+        return carList
+    }
+
+    fun sortByPlate(): List<SparkCar> {
+        carList = carList.sortedWith(compareBy { it.plateNumber })
+        return carList
+    }
+
+    fun sortByBattery(): List<SparkCar> {
+        carList = carList.sortedByDescending { it.batteryPercentage }
+        return carList
     }
 }

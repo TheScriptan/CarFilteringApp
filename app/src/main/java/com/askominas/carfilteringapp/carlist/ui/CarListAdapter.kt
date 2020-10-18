@@ -25,7 +25,8 @@ class CarListAdapter : RecyclerView.Adapter<CarListViewHolder>() {
         return carList.size
     }
 
-    fun initializeCarList(list: List<SparkCar>) {
+    fun updateCarList(list: List<SparkCar>) {
+        carList.clear()
         carList.addAll(list)
         notifyDataSetChanged()
     }
