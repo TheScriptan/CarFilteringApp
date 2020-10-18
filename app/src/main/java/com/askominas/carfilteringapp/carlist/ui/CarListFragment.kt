@@ -1,7 +1,6 @@
 package com.askominas.carfilteringapp.carlist.ui
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,8 +13,6 @@ import com.askominas.carfilteringapp.BR
 import com.askominas.carfilteringapp.R
 import com.askominas.carfilteringapp.carlist.viewmodels.CarListViewModel
 import com.askominas.carfilteringapp.databinding.FragmentCarListBinding
-import com.google.android.gms.location.LocationRequest
-import com.patloew.rxlocation.RxLocation
 import com.tbruyelle.rxpermissions3.RxPermissions
 import dagger.android.support.DaggerFragment
 import javax.inject.Inject
@@ -24,6 +21,7 @@ import javax.inject.Inject
 class CarListFragment : DaggerFragment() {
 
     private lateinit var binding: FragmentCarListBinding
+    private lateinit var rxPermissions: RxPermissions
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -32,7 +30,6 @@ class CarListFragment : DaggerFragment() {
             .get(CarListViewModel::class.java)
     }
 
-    @SuppressLint("MissingPermission")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -40,9 +37,8 @@ class CarListFragment : DaggerFragment() {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_car_list, container, false)
         binding.lifecycleOwner = this
         binding.setVariable(BR.viewModel, viewModel)
+        rxPermissions = RxPermissions(this)
         val view = binding.root
-        val rxPermissions = RxPermissions(this)
-        val rxLocation = RxLocation(requireContext())
 
         val carListLayoutManager = LinearLayoutManager(context)
         val carListAdapter = CarListAdapter()
@@ -55,6 +51,8 @@ class CarListFragment : DaggerFragment() {
         })
 
         viewModel.sortByDistanceEvent.observe(viewLifecycleOwner, {
+            if (!requestLocationPermission())
+                return@observe
             val sortedList = viewModel.sortByDistance()
             carListAdapter.updateCarList(sortedList)
         })
@@ -69,34 +67,35 @@ class CarListFragment : DaggerFragment() {
             carListAdapter.updateCarList(sortedList)
         })
 
-        rxPermissions
-            .requestEachCombined(
+        requestLocationPermission()
+        return view
+    }
+
+    private fun requestLocationPermission(): Boolean {
+        var isPermission = false
+        if (!rxPermissions.isGranted(Manifest.permission.ACCESS_FINE_LOCATION) &&
+            !rxPermissions.isGranted(Manifest.permission.ACCESS_COARSE_LOCATION)
+        ) {
+            rxPermissions.requestEachCombined(
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.ACCESS_COARSE_LOCATION
-            )
-            .subscribe { permission ->
+            ).subscribe { permission ->
                 if (permission.granted) {
                     viewModel.loadCarList()
-                    val locationRequest = LocationRequest.create()
-                        .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                        .setInterval(5000)
-                    rxLocation.location().updates(locationRequest)
-                        .flatMap { location ->
-                            rxLocation.geocoding().fromLocation(location).toObservable()
-                        }
-                        .subscribe { address ->
-                            viewModel.currentLat = address.latitude
-                            viewModel.currentLon = address.longitude
-                        }
+                    isPermission = true
                 } else {
                     Toast.makeText(
                         context,
-                        "Location permission denied. Can't compare distance from cars",
+                        getString(R.string.car_list_permission_error),
                         Toast.LENGTH_LONG
                     ).show()
+                    isPermission = false
                 }
             }
-
-        return view
+        } else {
+            isPermission = true
+            viewModel.loadCarList()
+        }
+        return isPermission
     }
 }
