@@ -1,17 +1,20 @@
 package com.askominas.carfilteringapp.carlist.ui
 
 import SparkCar
+import android.Manifest
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.askominas.carfilteringapp.R
 import com.askominas.carfilteringapp.databinding.FragmentCarListBinding
 import com.google.gson.Gson
+import com.tbruyelle.rxpermissions3.RxPermissions
+
 
 class CarListFragment : Fragment() {
 
@@ -24,6 +27,7 @@ class CarListFragment : Fragment() {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_car_list, container, false)
         binding.lifecycleOwner = this
         val view = binding.root
+        val rxPermissions = RxPermissions(this)
 
         val carListLayoutManager = LinearLayoutManager(context)
         val carListAdapter = CarListAdapter()
@@ -183,15 +187,24 @@ class CarListFragment : Fragment() {
             json,
             Array<SparkCar>::class.java
         )
-        Log.d("TEST", sparkList.toString())
-        carListAdapter.initializeCarList(sparkList.asList())
+
 
         binding.recyclerCarList.adapter = carListAdapter
         binding.recyclerCarList.layoutManager = carListLayoutManager
 
-        binding.buttonCarListSortByBattery.setOnClickListener {
-            carListAdapter.initializeCarList(sparkList.asList())
-        }
+        rxPermissions
+            .request(Manifest.permission.ACCESS_FINE_LOCATION)
+            .subscribe { granted: Boolean ->
+                if (granted) {
+                    carListAdapter.initializeCarList(sparkList.asList())
+                } else {
+                    Toast.makeText(
+                        context,
+                        "Location permission denied. Can't compare distance from cars",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
 
         return view
     }
