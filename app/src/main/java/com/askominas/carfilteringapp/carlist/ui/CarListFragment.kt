@@ -1,60 +1,198 @@
 package com.askominas.carfilteringapp.carlist.ui
 
+import SparkCar
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.askominas.carfilteringapp.R
+import com.askominas.carfilteringapp.databinding.FragmentCarListBinding
+import com.google.gson.Gson
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [CarListFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class CarListFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private lateinit var binding: FragmentCarListBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_car_list, container, false)
-    }
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_car_list, container, false)
+        binding.lifecycleOwner = this
+        val view = binding.root
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment CarListFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            CarListFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+        val carListLayoutManager = LinearLayoutManager(context)
+        val carListAdapter = CarListAdapter()
+
+        val json = "[{\n" +
+                "    \"id\": 31,\n" +
+                "    \"plateNumber\": \"TEST31\",\n" +
+                "    \"location\": {\n" +
+                "        \"id\": 0,\n" +
+                "        \"latitude\": 54.66855,\n" +
+                "        \"longitude\": 25.23474,\n" +
+                "        \"address\": \"Laisvės prospektas 1\"\n" +
+                "    },\n" +
+                "    \"model\": {\n" +
+                "        \"id\": 7,\n" +
+                "        \"title\": \"Nissan Leaf\",\n" +
+                "        \"photoUrl\": \"https://s3-eu-west-1.amazonaws.com/rideshareuploads/uploads/nissanLeaf.jpg\",\n" +
+                "        \"loyaltyPrize\": 0,\n" +
+                "        \"rate\": {\n" +
+                "            \"isWeekend\": true,\n" +
+                "            \"currency\": \"Euro\",\n" +
+                "            \"currencySymbol\": \"€\",\n" +
+                "            \"lease\": {\n" +
+                "                \"workdays\": {\n" +
+                "                    \"amount\": 0.15,\n" +
+                "                    \"minutes\": 1,\n" +
+                "                    \"dailyAmount\": 25.0,\n" +
+                "                    \"minimumPrice\": 1.50,\n" +
+                "                    \"minimumMinutes\": 10\n" +
+                "                },\n" +
+                "                \"weekends\": {\n" +
+                "                    \"amount\": 0.15,\n" +
+                "                    \"minutes\": 1,\n" +
+                "                    \"dailyAmount\": 25.0,\n" +
+                "                    \"minimumPrice\": 1.50,\n" +
+                "                    \"minimumMinutes\": 10\n" +
+                "                },\n" +
+                "                \"kilometerPrice\": 0.0,\n" +
+                "                \"freeKilometersPerDay\": 0\n" +
+                "            },\n" +
+                "            \"reservation\": {\n" +
+                "                \"initialPrice\": 0.0,\n" +
+                "                \"initialMinutes\": 15,\n" +
+                "                \"extensionPrice\": 5.0,\n" +
+                "                \"extensionMinutes\": 15,\n" +
+                "                \"longerExtensionPrice\": 5.0,\n" +
+                "                \"longerExtensionMinutes\": 30\n" +
+                "            }\n" +
+                "        }\n" +
+                "    },\n" +
+                "    \"batteryPercentage\": 85,\n" +
+                "    \"batteryEstimatedDistance\": 152.0,\n" +
+                "    \"isCharging\": false,\n" +
+                "    \"servicePlusEGoPoints\": 0\n" +
+                "}, {\n" +
+                "    \"id\": 28,\n" +
+                "    \"plateNumber\": \"TEST28\",\n" +
+                "    \"location\": {\n" +
+                "        \"id\": 0,\n" +
+                "        \"latitude\": 54.70006000,\n" +
+                "        \"longitude\": 25.26496000,\n" +
+                "        \"address\": \"Lvovo gatvė 62\"\n" +
+                "    },\n" +
+                "    \"model\": {\n" +
+                "        \"id\": 3,\n" +
+                "        \"title\": \"VW e-Up!\",\n" +
+                "        \"photoUrl\": \"https://s3-eu-west-1.amazonaws.com/rideshareuploads/uploads/vweUp.jpg\",\n" +
+                "        \"loyaltyPrize\": 0,\n" +
+                "        \"rate\": {\n" +
+                "            \"isWeekend\": true,\n" +
+                "            \"currency\": \"Euro\",\n" +
+                "            \"currencySymbol\": \"€\",\n" +
+                "            \"lease\": {\n" +
+                "                \"workdays\": {\n" +
+                "                    \"amount\": 0.15,\n" +
+                "                    \"minutes\": 1,\n" +
+                "                    \"dailyAmount\": 28.0,\n" +
+                "                    \"minimumPrice\": 1.95,\n" +
+                "                    \"minimumMinutes\": 13\n" +
+                "                },\n" +
+                "                \"weekends\": {\n" +
+                "                    \"amount\": 0.15,\n" +
+                "                    \"minutes\": 1,\n" +
+                "                    \"dailyAmount\": 20.0,\n" +
+                "                    \"minimumPrice\": 1.95,\n" +
+                "                    \"minimumMinutes\": 13\n" +
+                "                },\n" +
+                "                \"kilometerPrice\": 0.1,\n" +
+                "                \"freeKilometersPerDay\": 200\n" +
+                "            },\n" +
+                "            \"reservation\": {\n" +
+                "                \"initialPrice\": 2.0,\n" +
+                "                \"initialMinutes\": 3,\n" +
+                "                \"extensionPrice\": 4.0,\n" +
+                "                \"extensionMinutes\": 1,\n" +
+                "                \"longerExtensionPrice\": 2.0,\n" +
+                "                \"longerExtensionMinutes\": 2\n" +
+                "            }\n" +
+                "        }\n" +
+                "    },\n" +
+                "    \"batteryPercentage\": 99,\n" +
+                "    \"batteryEstimatedDistance\": 150.0,\n" +
+                "    \"isCharging\": false,\n" +
+                "    \"servicePlusEGoPoints\": 0\n" +
+                "}, {\n" +
+                "    \"id\": 5,\n" +
+                "    \"plateNumber\": \"TEST5\",\n" +
+                "    \"location\": {\n" +
+                "        \"id\": 0,\n" +
+                "        \"latitude\": 54.56028,\n" +
+                "        \"longitude\": 25.15663,\n" +
+                "        \"address\": \"Unnamed Road\"\n" +
+                "    },\n" +
+                "    \"model\": {\n" +
+                "        \"id\": 3,\n" +
+                "        \"title\": \"VW e-Up!\",\n" +
+                "        \"photoUrl\": \"https://s3-eu-west-1.amazonaws.com/rideshareuploads/uploads/vweUp.jpg\",\n" +
+                "        \"loyaltyPrize\": 0,\n" +
+                "        \"rate\": {\n" +
+                "            \"isWeekend\": true,\n" +
+                "            \"currency\": \"Euro\",\n" +
+                "            \"currencySymbol\": \"€\",\n" +
+                "            \"lease\": {\n" +
+                "                \"workdays\": {\n" +
+                "                    \"amount\": 0.15,\n" +
+                "                    \"minutes\": 1,\n" +
+                "                    \"dailyAmount\": 28.0,\n" +
+                "                    \"minimumPrice\": 1.95,\n" +
+                "                    \"minimumMinutes\": 13\n" +
+                "                },\n" +
+                "                \"weekends\": {\n" +
+                "                    \"amount\": 0.15,\n" +
+                "                    \"minutes\": 1,\n" +
+                "                    \"dailyAmount\": 20.0,\n" +
+                "                    \"minimumPrice\": 1.95,\n" +
+                "                    \"minimumMinutes\": 13\n" +
+                "                },\n" +
+                "                \"kilometerPrice\": 0.1,\n" +
+                "                \"freeKilometersPerDay\": 200\n" +
+                "            },\n" +
+                "            \"reservation\": {\n" +
+                "                \"initialPrice\": 2.0,\n" +
+                "                \"initialMinutes\": 3,\n" +
+                "                \"extensionPrice\": 4.0,\n" +
+                "                \"extensionMinutes\": 1,\n" +
+                "                \"longerExtensionPrice\": 2.0,\n" +
+                "                \"longerExtensionMinutes\": 2\n" +
+                "            }\n" +
+                "        }\n" +
+                "    },\n" +
+                "    \"batteryPercentage\": 69,\n" +
+                "    \"batteryEstimatedDistance\": 97.0,\n" +
+                "    \"isCharging\": false,\n" +
+                "    \"servicePlusEGoPoints\": 0\n" +
+                "}]"
+        val sparkList: Array<SparkCar> = Gson().fromJson(
+            json,
+            Array<SparkCar>::class.java
+        )
+        Log.d("TEST", sparkList.toString())
+        carListAdapter.initializeCarList(sparkList.asList())
+
+        binding.recyclerCarList.adapter = carListAdapter
+        binding.recyclerCarList.layoutManager = carListLayoutManager
+
+        binding.buttonCarListSortByBattery.setOnClickListener {
+            carListAdapter.initializeCarList(sparkList.asList())
+        }
+
+        return view
     }
 }

@@ -16,6 +16,6 @@ data class Lease (
 
 	@SerializedName("workdays") val workdays : Workdays,
 	@SerializedName("weekends") val weekends : Weekends,
-	@SerializedName("kilometerPrice") val kilometerPrice : Int,
+	@SerializedName("kilometerPrice") val kilometerPrice : Double,
 	@SerializedName("freeKilometersPerDay") val freeKilometersPerDay : Int
 )

@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">CarFilteringApp</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="car_list_sort_by_distance">Sort by distance</string>
     <string name="car_list_sort_by_plate">Sort by plate</string>
