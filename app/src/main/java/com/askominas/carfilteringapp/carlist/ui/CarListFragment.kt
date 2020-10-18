@@ -1,19 +1,21 @@
 package com.askominas.carfilteringapp.carlist.ui
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.askominas.carfilteringapp.BR
 import com.askominas.carfilteringapp.R
 import com.askominas.carfilteringapp.carlist.viewmodels.CarListViewModel
 import com.askominas.carfilteringapp.databinding.FragmentCarListBinding
+import com.google.android.gms.location.LocationRequest
+import com.patloew.rxlocation.RxLocation
 import com.tbruyelle.rxpermissions3.RxPermissions
 import dagger.android.support.DaggerFragment
 import javax.inject.Inject
@@ -30,6 +32,7 @@ class CarListFragment : DaggerFragment() {
             .get(CarListViewModel::class.java)
     }
 
+    @SuppressLint("MissingPermission")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -39,6 +42,7 @@ class CarListFragment : DaggerFragment() {
         binding.setVariable(BR.viewModel, viewModel)
         val view = binding.root
         val rxPermissions = RxPermissions(this)
+        val rxLocation = RxLocation(requireContext())
 
         val carListLayoutManager = LinearLayoutManager(context)
         val carListAdapter = CarListAdapter()
@@ -66,10 +70,24 @@ class CarListFragment : DaggerFragment() {
         })
 
         rxPermissions
-            .request(Manifest.permission.ACCESS_FINE_LOCATION)
-            .subscribe { granted: Boolean ->
-                if (granted) {
+            .requestEachCombined(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            )
+            .subscribe { permission ->
+                if (permission.granted) {
                     viewModel.loadCarList()
+                    val locationRequest = LocationRequest.create()
+                        .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                        .setInterval(5000)
+                    rxLocation.location().updates(locationRequest)
+                        .flatMap { location ->
+                            rxLocation.geocoding().fromLocation(location).toObservable()
+                        }
+                        .subscribe { address ->
+                            viewModel.currentLat = address.latitude
+                            viewModel.currentLon = address.longitude
+                        }
                 } else {
                     Toast.makeText(
                         context,

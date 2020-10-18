@@ -18,6 +18,8 @@ class CarListViewModel @Inject constructor(val retrofit: Retrofit) : ViewModel()
     val sortByBatteryEvent = SingleLiveEvent<Boolean>()
     val updateCarList = SingleLiveEvent<Boolean>()
 
+    var currentLat: Double = 0.0
+    var currentLon: Double = 0.0
     var carList: List<SparkCar> = arrayListOf()
 
     fun loadCarList() {
@@ -52,7 +54,15 @@ class CarListViewModel @Inject constructor(val retrofit: Retrofit) : ViewModel()
     }
 
     fun sortByDistance(): List<SparkCar> {
-        carList = carList.reversed()
+        carList = carList.sortedWith(compareBy {
+            it.distanceToCurrentLocation = distanceBetween(
+                currentLat,
+                currentLon,
+                it.location.latitude,
+                it.location.longitude
+            )
+            it.distanceToCurrentLocation
+        })
         return carList
     }
 
@@ -64,5 +74,24 @@ class CarListViewModel @Inject constructor(val retrofit: Retrofit) : ViewModel()
     fun sortByBattery(): List<SparkCar> {
         carList = carList.sortedByDescending { it.batteryPercentage }
         return carList
+    }
+
+    private fun distanceBetween(
+        fromLat: Double,
+        fromLon: Double,
+        toLat: Double,
+        toLon: Double
+    ): Double {
+        val radius = 6371.0 // Earth radius in km
+        val deltaLat = Math.toRadians(toLat - fromLat)
+        val deltaLon = Math.toRadians(toLon - fromLon)
+        val lat1 = Math.toRadians(fromLat)
+        val lat2 = Math.toRadians(toLat)
+        val aVal = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+                Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2) * Math.cos(lat1) * Math.cos(lat2)
+        val cVal = 2 * Math.atan2(Math.sqrt(aVal), Math.sqrt(1 - aVal))
+        val distance = radius * cVal
+        Log.d("distance", "radius * angle = $distance")
+        return distance
     }
 }

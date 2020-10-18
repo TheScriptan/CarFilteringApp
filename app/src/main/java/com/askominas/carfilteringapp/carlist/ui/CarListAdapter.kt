@@ -1,10 +1,10 @@
 package com.askominas.carfilteringapp.carlist.ui
 
-import com.askominas.carfilteringapp.models.SparkCar
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.askominas.carfilteringapp.R
+import com.askominas.carfilteringapp.models.SparkCar
 
 class CarListAdapter : RecyclerView.Adapter<CarListViewHolder>() {
 

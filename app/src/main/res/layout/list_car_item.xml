@@ -68,6 +68,19 @@
             tools:text="Laisves Prospektas" />
 
         <TextView
+            android:id="@+id/text_car_distance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="4dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/text_car_battery_value"
+            app:layout_constraintTop_toTopOf="@id/text_car_model"
+            tools:text="500m"
+            tools:visibility="visible" />
+
+        <TextView
             android:id="@+id/text_car_battery_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
