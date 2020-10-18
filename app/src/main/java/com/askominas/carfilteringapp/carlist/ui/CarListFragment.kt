@@ -1,6 +1,5 @@
 package com.askominas.carfilteringapp.carlist.ui
 
-import com.askominas.carfilteringapp.models.SparkCar
 import android.Manifest
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,17 +7,29 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.askominas.carfilteringapp.BR
 import com.askominas.carfilteringapp.R
+import com.askominas.carfilteringapp.carlist.viewmodels.CarListViewModel
 import com.askominas.carfilteringapp.databinding.FragmentCarListBinding
+import com.askominas.carfilteringapp.models.SparkCar
 import com.google.gson.Gson
 import com.tbruyelle.rxpermissions3.RxPermissions
+import dagger.android.support.DaggerFragment
+import javax.inject.Inject
 
 
-class CarListFragment : Fragment() {
+class CarListFragment : DaggerFragment() {
 
     private lateinit var binding: FragmentCarListBinding
+
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+    private val viewModel by lazy {
+        ViewModelProvider(this, viewModelFactory)
+            .get(CarListViewModel::class.java)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -26,7 +37,7 @@ class CarListFragment : Fragment() {
     ): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_car_list, container, false)
         binding.lifecycleOwner = this
-
+        binding.setVariable(BR.viewModel, viewModel)
         val view = binding.root
         val rxPermissions = RxPermissions(this)
 

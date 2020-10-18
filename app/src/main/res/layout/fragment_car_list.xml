@@ -21,6 +21,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/car_list_sort_by_distance"
+            android:onClick="@{() -> viewModel.onSortByDistanceClick()}"
             android:textSize="12sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -31,6 +32,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/car_list_sort_by_plate"
+            android:onClick="@{() -> viewModel.onSortByPlateClick()}"
             android:textSize="12sp"
             app:layout_constraintEnd_toStartOf="@id/button_car_list_sort_by_battery"
             app:layout_constraintStart_toEndOf="@id/button_car_list_sort_by_distance"
@@ -41,6 +43,7 @@
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:onClick="@{() -> viewModel.onSortByBatteryClick()}"
             android:text="@string/car_list_sort_by_battery"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
