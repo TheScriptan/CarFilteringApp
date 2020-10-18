@@ -39,7 +39,7 @@ class CarListFragment : BaseFragment<CarListViewModel, FragmentCarListBinding>()
 
         viewModel.sortByDistanceEvent.observe(viewLifecycleOwner, {
             val shouldSort = requestLocationPermission(
-                onGranted = { viewModel.loadCarList() },
+                onGranted = { viewModel.initializeCarList() },
                 errorID = R.string.car_list_permission_error
             )
             if (!shouldSort)
@@ -59,7 +59,7 @@ class CarListFragment : BaseFragment<CarListViewModel, FragmentCarListBinding>()
         })
 
         requestLocationPermission(
-            onGranted = { viewModel.loadCarList() },
+            onGranted = { viewModel.initializeCarList() },
             errorID = R.string.car_list_permission_error
         )
         return view

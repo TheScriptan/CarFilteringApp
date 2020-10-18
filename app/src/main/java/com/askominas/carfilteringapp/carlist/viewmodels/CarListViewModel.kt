@@ -1,7 +1,6 @@
 package com.askominas.carfilteringapp.carlist.viewmodels
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.askominas.carfilteringapp.models.SparkCar
 import com.askominas.carfilteringapp.networking.SparkCarApi
@@ -12,12 +11,14 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
+import timber.log.Timber
 import javax.inject.Inject
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
 
+@SuppressLint("MissingPermission", "CheckResult")
 class CarListViewModel @Inject constructor(val retrofit: Retrofit, val rxLocation: RxLocation) :
     ViewModel() {
 
@@ -31,39 +32,38 @@ class CarListViewModel @Inject constructor(val retrofit: Retrofit, val rxLocatio
     var carList: List<SparkCar> = arrayListOf()
     var isCarListInitialized = false
 
-    @SuppressLint("MissingPermission", "CheckResult")
-    fun loadCarList() {
+    init {
+        val locationRequest = LocationRequest.create()
+            .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+            .setInterval(60000)
+        rxLocation.location().updates(locationRequest)
+            .flatMap { location ->
+                rxLocation.geocoding().fromLocation(location).toObservable()
+            }.subscribe { address ->
+                currentLat = address.latitude
+                currentLon = address.longitude
+            }
+    }
+
+    fun initializeCarList() {
         if (isCarListInitialized)
             return
         isCarListInitialized = true
+
         val api = retrofit.create(SparkCarApi::class.java)
         api.listRepos().enqueue(object : Callback<List<SparkCar>> {
             override fun onResponse(
                 call: Call<List<SparkCar>>,
                 response: Response<List<SparkCar>>
             ) {
-                if (response.body() != null) {
-                    carList = ArrayList(response.body()!!)
-                    updateCarList.call()
-                }
+                carList = ArrayList(response.body() ?: listOf())
+                updateCarList.call()
             }
 
             override fun onFailure(call: Call<List<SparkCar>>, t: Throwable) {
-                Log.d("TEST", "Failure: ${t.message}")
+                Timber.d("Networking error: ${t.message}")
             }
         })
-
-        val locationRequest = LocationRequest.create()
-            .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-            .setInterval(5000)
-        rxLocation.location().updates(locationRequest)
-            .flatMap { location ->
-                rxLocation.geocoding().fromLocation(location).toObservable()
-            }
-            .subscribe { address ->
-                currentLat = address.latitude
-                currentLon = address.longitude
-            }
     }
 
     fun onSortByDistanceClick() {
@@ -116,7 +116,6 @@ class CarListViewModel @Inject constructor(val retrofit: Retrofit, val rxLocatio
                 sin(deltaLon / 2) * sin(deltaLon / 2) * cos(lat1) * cos(lat2)
         val cVal = 2 * atan2(sqrt(aVal), sqrt(1 - aVal))
         val distance = radius * cVal
-        Log.d("distance", "radius * angle = $distance")
         return distance
     }
 }
